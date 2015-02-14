@@ -1,0 +1,65 @@
+http://localhost:9200/_all/adverts/
+===================================
+GET _search
+{
+  "size":0,
+  "from":0,
+  "aggregations": {
+      // our first aggregation bucket is
+      // "advert_id"
+      "advert": {
+          "terms": {
+              "field": "advert_id"
+          },
+          // once we have grouped by id, we need to group
+          // by 'action', i.e. page_views, link_clicked,
+          // etc.
+          "aggregations": {
+              "actions": {
+                  "terms": {
+                      "field": "action"
+                  },
+                  // then, we need two stat aggregation: one for the value
+                  // (i.e. the number of clicks, or the page views, or the
+                  // video views, etc... one for the cost.
+                  "aggregations": {
+                      "value_stats": {
+                          "stats": {
+                              "field": "value"
+                          }
+                      },
+                      "cost_stats": {
+                          "stats": {
+                              "field": "value"
+                          }
+                      }
+                  }
+              }
+          }
+      }
+  },
+  // some selection parameters can be added in this section.
+  "query": {
+      "filtered": {
+          "filter": {
+              "or": [
+                  {
+                    "term": {
+                      "advert_id": 1
+                    }
+                  },
+                  {
+                    "term": {
+                      "advert_id": 2
+                    }
+                  },
+                  {
+                    "term": {
+                      "advert_id": 3
+                    }
+                  }
+              ]
+          }
+      }
+  }
+}
